@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "883738531806",
+    "project_id": "authtutorial-781d1",
+    "storage_bucket": "authtutorial-781d1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883738531806:android:f33d1229752a7a7d9cef4f",
+        "android_client_info": {
+          "package_name": "com.example.parking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUIg_GvGGSR0ChboIuEO0Hv7rYBYSwTAY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
