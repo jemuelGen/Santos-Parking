@@ -1,6 +1,6 @@
 # parking
 
-A new Flutter project.
+A Flutter project for Santos Hospital.
 
 ## Getting Started
 
