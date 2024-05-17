@@ -22,6 +22,14 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
+        java-package: jdk
+        architecture: x64
+        check-latest: false
+        server-id: github
+        server-username: ${{ github.actor }}
+        server-password: ${{ secrets.GITHUB_TOKEN }}
+        overwrite-settings: true
+        job-status: success
 
     - name: Install dependencies
       run: sudo apt-get install -y lib32stdc++6 lib32z1
@@ -59,6 +67,14 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: '11'
+        java-package: jdk
+        architecture: x64
+        check-latest: false
+        server-id: github
+        server-username: ${{ github.actor }}
+        server-password: ${{ secrets.GITHUB_TOKEN }}
+        overwrite-settings: true
+        job-status: success
 
     - name: Install Flutter
       uses: subosito/flutter-action@v2
