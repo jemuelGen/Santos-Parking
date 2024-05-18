@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build and Release
 
 on:
   push:
@@ -24,12 +24,6 @@ jobs:
         java-version: '11'
         java-package: jdk
         architecture: x64
-        check-latest: false
-        server-id: github
-        server-username: ${{ github.actor }}
-        server-password: ${{ secrets.GITHUB_TOKEN }}
-        overwrite-settings: true
-        job-status: success
 
     - name: Install dependencies
       run: sudo apt-get install -y lib32stdc++6 lib32z1
@@ -69,12 +63,6 @@ jobs:
         java-version: '11'
         java-package: jdk
         architecture: x64
-        check-latest: false
-        server-id: github
-        server-username: ${{ github.actor }}
-        server-password: ${{ secrets.GITHUB_TOKEN }}
-        overwrite-settings: true
-        job-status: success
 
     - name: Install Flutter
       uses: subosito/flutter-action@v2
@@ -122,7 +110,6 @@ jobs:
         path: ./artifacts
 
     - name: Create Release
-      id: create_release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: 'v1.0.0'  # Tag for the release
@@ -132,4 +119,4 @@ jobs:
           ./artifacts/app-release.apk
           ./artifacts/*.ipa
       env:
-        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
