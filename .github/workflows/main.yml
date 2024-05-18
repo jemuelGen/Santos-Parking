@@ -126,10 +126,10 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: 'v1.0.0'  # Tag for the release
-        name: 'SantoParking v1.0.0'  # Name of the release
+        name: 'SantosParking v1.0.0'  # Name of the release
         body: 'Initial release of the app.'  # Release notes
         files: |
           ./artifacts/app-release.apk
           ./artifacts/*.ipa
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
