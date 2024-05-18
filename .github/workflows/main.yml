@@ -100,3 +100,36 @@ jobs:
       with:
         name: ios-app
         path: build/ios/ipa
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: [build-android, build-ios]
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Download Android APK
+      uses: actions/download-artifact@v2
+      with:
+        name: android-apk
+        path: ./artifacts
+
+    - name: Download iOS IPA
+      uses: actions/download-artifact@v2
+      with:
+        name: ios-app
+        path: ./artifacts
+
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: 'v1.0.0'  # Tag for the release
+        name: 'SantoParking v1.0.0'  # Name of the release
+        body: 'Initial release of the app.'  # Release notes
+        files: |
+          ./artifacts/app-release.apk
+          ./artifacts/*.ipa
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
