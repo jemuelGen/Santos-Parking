@@ -107,18 +107,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Download Android APK
-      uses: actions/download-artifact@v2
-      with:
-        name: android-apk
-        path: ./artifacts
-
-    - name: Download iOS IPA
-      uses: actions/download-artifact@v2
-      with:
-        name: ios-app
-        path: ./artifacts
-
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v1
@@ -141,18 +129,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Download Android APK
-      uses: actions/download-artifact@v2
-      with:
-        name: android-apk
-        path: ./artifacts
-
-    - name: Download iOS IPA
-      uses: actions/download-artifact@v2
-      with:
-        name: ios-app
-        path: ./artifacts
-
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
@@ -160,6 +136,6 @@ jobs:
         file: |
           ./artifacts/app-release.apk
           ./artifacts/FlutterIpaExport.ipa
-        tag: v1.0
+        tag: v1.0.0
         overwrite: true
         body: "This is the first release"
