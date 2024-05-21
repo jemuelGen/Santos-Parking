@@ -120,12 +120,6 @@ class FirestoreServices {
 
     final DocumentReference userDocRef = FirebaseFirestore.instance.collection('User').doc(uid);
 
-    await userDocRef.update({
-      'arrival': arrival, // assuming this and the next are already formatted appropriately
-      'departure': departure,
-      'reserve': vacant,
-    });
-
     // Query to find a parking lot that is vacant
     final QuerySnapshot querySnapshot = await FirebaseFirestore.instance
       .collection('parkingLot')
@@ -137,12 +131,17 @@ class FirestoreServices {
       final DocumentSnapshot parkingLotDoc = querySnapshot.docs.first;
       final DocumentReference parkingLotRef = parkingLotDoc.reference;
 
+      await userDocRef.update({
+      'arrival': arrival, // assuming this and the next are already formatted appropriately
+      'departure': departure, 
+      'reserve': vacant,
+    });
       // Update the parking lot to mark it as no longer vacant
       await parkingLotRef.update({'vacant': false});
 
       return 'Reservation successful, parking lot reserved';
     } else {
-      return 'Reservation successful, no vacant parking lot available';
+      return 'no vacant parking lot available';
     }
     } catch (e) {
       return 'Error reserving: ${e.toString()}';
