@@ -130,7 +130,7 @@ jobs:
           ./artifacts/app-release.apk
           ./artifacts/FlutterIpaExport.ipa
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.MY_GITHUB_TOKEN }}
 
   upload-release:
     name: Upload Release
@@ -156,7 +156,7 @@ jobs:
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        repo_token: ${{ secrets.MY_GITHUB_TOKEN }}
         file: |
           ./artifacts/app-release.apk
           ./artifacts/FlutterIpaExport.ipa
