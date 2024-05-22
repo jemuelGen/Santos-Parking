@@ -41,6 +41,63 @@ class _ListPage extends State<ListPage> {
     );
   }
 
+  void openActionDialog(String docID, String arrivalTime) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (arrivalTime.isNotEmpty)
+              ElevatedButton(
+                onPressed: () {
+                  firestoreService.removeArrival(docID);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff114232),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Arrived',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'ReadexPro',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            if (arrivalTime.isNotEmpty) const SizedBox(height: 8),
+            ElevatedButton(
+              onPressed: () {
+                firestoreService.cancelReservation(docID);
+                Navigator.pop(context);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xff114232),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Departed',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'ReadexPro',
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -88,106 +145,96 @@ class _ListPage extends State<ListPage> {
                       String departureTime = data['departure'] ?? '';
 
                       // Display as a list tile
-                      return Column(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Center(
-                                    child: Text(
-                                      name,
-                                      style: const TextStyle(fontSize: 16),
-                                      textAlign: TextAlign.center,
+                      return InkWell(
+                        onTap: () => openActionDialog(docID, arrivalTime),
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Center(
+                                      child: Text(
+                                        name,
+                                        style: const TextStyle(fontSize: 16),
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Container(
-                                  height: 40,
-                                  width: 1,
-                                  color: Colors.grey[400],
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Center(
-                                    child: Text(
-                                      'Arrival: $arrivalTime',
-                                      style: const TextStyle(fontSize: 16),
-                                      textAlign: TextAlign.center,
-                                    ),
+                                  Container(
+                                    height: 40,
+                                    width: 1,
+                                    color: Colors.grey[400],
                                   ),
-                                ),
-                                Container(
-                                  height: 40,
-                                  width: 1,
-                                  color: Colors.grey[400],
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Center(
-                                    child: Text(
-                                      'Departure: ${departureTime.isNotEmpty ? departureTime : 'Departed'}',
-                                      style: const TextStyle(fontSize: 16),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                ),
-                                Container(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Row(
-                                    children: [
-                                      if (arrivalTime.isNotEmpty)
-                                        ElevatedButton(
-                                          onPressed: () => firestoreService.removeArrival(docID),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: const Color(0xff114232),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(10),
+                                  Expanded(
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: 130,
+                                        child: Row(
+                                          children: [
+                                            const Text(
+                                              'Arrival: ',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                              textAlign: TextAlign.center,
                                             ),
-                                          ),
-                                          child: const Text(
-                                            'Arrived',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontFamily: 'ReadexPro',
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 15,
+                                            Text(
+                                              arrivalTime.isNotEmpty ? arrivalTime : 'Arrived',
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                              textAlign: TextAlign.center,
                                             ),
-                                          ),
-                                        ),
-                                      if (arrivalTime.isNotEmpty) const SizedBox(width: 8),
-                                      ElevatedButton(
-                                        onPressed: () => firestoreService.cancelReservation(docID),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: const Color(0xff114232),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Departed',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontFamily: 'ReadexPro',
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15,
-                                          ),
+                                          ],
                                         ),
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                    height: 40,
+                                    width: 1,
+                                    color: Colors.grey[400],
+                                  ),
+                                  Expanded(
+                                    child: Center(
+                                      child: SizedBox(
+                                        width: 150,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            const Text(
+                                              'Departure: ',
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w300,
+                                              ),
+                                            ),
+                                            Text(
+                                              departureTime,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w900,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const Divider(
-                            thickness: 1,
-                            color: Colors.grey,
-                          ),
-                        ],
+                            const Divider(
+                              thickness: 1,
+                              color: Colors.grey,
+                            ),
+                          ],
+                        ),
                       );
                     },
                   );

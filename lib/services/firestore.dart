@@ -10,6 +10,22 @@ class FirestoreServices {
   final CollectionReference slots = FirebaseFirestore.instance.collection('parkingLot');
   final CollectionReference userDetails = FirebaseFirestore.instance.collection('User');
   
+  Stream<bool> departureTimeStream(String uid){
+    return userDetails.doc(uid).snapshots().map((snapshot){
+      if (!snapshot.exists) return false;
+      final data = snapshot.data() as Map<String, dynamic>?;
+      return data?['departure'] !=null;
+    });
+  }
+  Stream<bool> arrivalTimeStream(String uid){
+    return userDetails.doc(uid).snapshots().map((snapshot){
+      if (!snapshot.exists) return false;
+      final data = snapshot.data() as Map<String, dynamic>?;
+      return data?['arrival'] !=null;
+    });
+  }
+  
+
   //read all users who is reserve
   Stream<QuerySnapshot> getUserStream() {
   final userStream = userDetails.where('reserve', isEqualTo: true).snapshots();
@@ -56,7 +72,7 @@ class FirestoreServices {
     }
   }
   //fetch arrival time
-  Future<String> fetchArrivalTime(String userId) async {
+  Stream<String?> fetchArrivalTime(String userId) async* {
     try {
       // Fetch the user document from Firestore
       DocumentSnapshot document = await userDetails.doc(userId).get();
@@ -65,15 +81,15 @@ class FirestoreServices {
         Map<String, dynamic>? data = document.data() as Map<String, dynamic>?;
         // Check if 'arrival' field is available
         if (data != null && data.containsKey('arrival')) {
-          return data['arrival'];
+          yield data['arrival'];
         } else {
-          return 'Arrival time not set';
+          yield null;
         }
       } else {
-        return 'User document does not exist';
+        yield 'User document does not exist';
       }
     } catch (e) {
-      return 'Error fetching arrival time';
+      yield 'Error fetching arrival time';
     }
   }
   Future<String> fetchDepartureTime(String userId) async {
@@ -225,26 +241,33 @@ class FirestoreServices {
 }
 
   //edit departure time
-  Future<String> editArrivalDeparture(String uid, String arrival,String departure) async{
-    try {
-      DateTime arrivalDateTime = _parseTimeOfDay(arrival);
-      DateTime departureDateTime = _parseTimeOfDay(departure);
-
-      if(arrivalDateTime.isAfter(departureDateTime)) {
-      return 'Arrival time cannot be later than departure time.';
-      }
-
-      final DocumentReference userDocRef = FirebaseFirestore.instance.collection('User').doc(uid);
-
-      await userDocRef.update({
-        'departure': departure,
-        'arrival': arrival
-      });
-
-      return 'Arrival and Departure time successfully updated';
-
-    } catch(e) {
-      return "Error reserving: ${e.toString()}";
+  Future<String> editArrivalDeparture(String uid, String arrival, String departure) async {
+  try {
+    DateTime? arrivalDateTime;
+    if (arrival.isNotEmpty) {
+      arrivalDateTime = _parseTimeOfDay(arrival);
     }
+
+    DateTime departureDateTime = _parseTimeOfDay(departure);
+
+    if (arrivalDateTime != null && arrivalDateTime.isAfter(departureDateTime)) {
+      return 'Arrival time cannot be later than departure time.';
+    }
+
+    final DocumentReference userDocRef = FirebaseFirestore.instance.collection('User').doc(uid);
+
+    Map<String, dynamic> updateData = {'departure': departure};
+
+    if (arrival.isNotEmpty) {
+      updateData['arrival'] = arrival;
+    }
+
+    await userDocRef.update(updateData);
+
+    return 'Arrival and Departure time successfully updated';
+  } catch (e) {
+    return "Error reserving: ${e.toString()}";
   }
+}
+
 }
