@@ -23,13 +23,15 @@ class _InfoPageState extends State<InfoPage> {
   void initState() {
     super.initState();
     getDepartureTime();
+
   }
   void getDepartureTime() async{
-    String _fetchDeparture = await parkingLotService.fetchDepartureTime(user.uid);
+    String fetchDeparture = await parkingLotService.fetchDepartureTime(user.uid);
     setState(() {
-      departure = _fetchDeparture;
+      departure = fetchDeparture;
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,16 +98,29 @@ class _InfoPageState extends State<InfoPage> {
                           StreamBuilder<String?>(
                             stream: parkingLotService.fetchArrivalTime(user.uid),
                             builder: (context, snapshot) {
-                              final String textToShow = snapshot.data == null ?'Arrived' :snapshot.data!;
-                              return Text(
-                                textToShow ,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 20,
-                                  fontFamily: 'ReadexPro',
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              );
+                              arrival = snapshot.data == null ? '' :snapshot.data!;
+                              if (arrival == '') {
+                                return const Text(
+                                  'Arrived' ,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontFamily: 'ReadexPro',
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                );
+                              } else{
+                                return Text(
+                                  arrival ,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 20,
+                                    fontFamily: 'ReadexPro',
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                );
+                              }
+
                             }
                           ),
                           const SizedBox(height: 30,),
@@ -193,7 +208,8 @@ class _InfoPageState extends State<InfoPage> {
                                               ),
                                             ),
                                             const SizedBox(height: 5),
-                                            if (arrival == '')
+                                            
+                                            if (arrival == 'Arrived')
                                               const Center(
                                                 child: Text(
                                                   'Arrived',
@@ -206,11 +222,13 @@ class _InfoPageState extends State<InfoPage> {
                                                 ),
                                               )
                                             else
-                                              TimeButton(
-                                                buttonText: arrival,
-                                                onTimePicked: (TimeOfDay time) {
-                                                  arrival = time.format(context);
-                                                },
+                                              Center(
+                                                child: TimeButton(
+                                                  buttonText: arrival,
+                                                  onTimePicked: (TimeOfDay time) {
+                                                    arrival = time.format(context);
+                                                  },
+                                                ),
                                               ),
                                             
                                             const SizedBox(height: 40),

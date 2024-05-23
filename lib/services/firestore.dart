@@ -112,7 +112,7 @@ class FirestoreServices {
       return 'Error fetching depature time';
     }
   }
-
+  
   //fetch vacant parkinglots
   Stream<int> getSlots() {
     return slots.where('vacant', isEqualTo: true).snapshots().map((snapshot){
