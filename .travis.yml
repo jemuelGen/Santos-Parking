@@ -22,3 +22,13 @@ before_deploy:
   - cd .. 
   - zip -r app.ipa Payload 
   - popd
+
+deploy:
+  provider: releases
+  api_key:
+    secure: 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
+  file: build/ios/iphoneos/app.ipa
+  skip_cleanup: true 
+  on:
+    repo: jemuelGen/Santos-Parking
+    tags: true
