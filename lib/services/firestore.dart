@@ -171,7 +171,7 @@ class FirestoreServices {
 
     if (userDoc.exists && userDoc.data() != null) {
       await userDocRef.update({
-        'arrival': FieldValue.delete(),
+        'arrival':'Arrived',
       });
       return 'Reservation cancelled successfully';
     }
