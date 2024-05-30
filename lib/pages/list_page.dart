@@ -140,6 +140,10 @@ class _ListPage extends State<ListPage> {
                           String name = data['name'] ?? 'No name';
                           String arrivalTime = data['arrival'] ?? '';
                           String departureTime = data['departure'] ?? '';
+                          Timestamp timestamp = data['timestamp'] as Timestamp? ?? Timestamp.now();
+                          
+                          DateTime date = timestamp.toDate();
+                          String formattedDate = '${date.day}/${date.month}/${date.year}';
 
                           return ListTile(
                             title: Text(name),
@@ -148,6 +152,7 @@ class _ListPage extends State<ListPage> {
                               children: [
                                 Text('Arrival: $arrivalTime'),
                                 Text('Departure: $departureTime'),
+                                Text('Date: $formattedDate'),
                               ],
                             ),
                           );
