@@ -325,14 +325,18 @@ class _ListPage extends State<ListPage> {
                                               ),
                                               textAlign: TextAlign.center,
                                             ),
-                                            Text(
-                                              arrivalTime.isNotEmpty ? arrivalTime : 'Arrived',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w900,
+                                            Container(
+                                              color: arrivalTime.isEmpty ? Colors.green : null,
+                                              child: Text(
+                                                arrivalTime.isNotEmpty ? arrivalTime : 'Arrived',
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: Colors.black, // Text color, added for visibility
+                                                ),
+                                                textAlign: TextAlign.center,
                                               ),
-                                              textAlign: TextAlign.center,
-                                            ),
+                                            )
                                           ],
                                         ),
                                       ),
