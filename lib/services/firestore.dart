@@ -288,5 +288,15 @@ class FirestoreServices {
 
     return docRef.id;
   }
+
+  Stream<QuerySnapshot> getAllLogs() {
+    return logs.snapshots();
+  }
   
+  Future<void> clearAllLogs() async {
+    QuerySnapshot querySnapshot = await logs.get();
+    for (DocumentSnapshot doc in querySnapshot.docs) {
+      await doc.reference.delete();
+    }
+  }
 }

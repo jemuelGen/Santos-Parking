@@ -13,6 +13,7 @@ class ListPage extends StatefulWidget {
 class _ListPage extends State<ListPage> {
   final FirestoreServices firestoreService = FirestoreServices();
   final TextEditingController textController = TextEditingController();
+  String logID = '';
 
   void openNoteBox({String? docID}) {
     showDialog(
@@ -24,10 +25,8 @@ class _ListPage extends State<ListPage> {
         actions: [
           ElevatedButton(
             onPressed: () {
-
               textController.clear();
               Navigator.pop(context);
-
             },
             child: const Text("Add"),
           )
@@ -36,7 +35,7 @@ class _ListPage extends State<ListPage> {
     );
   }
 
-  void openActionDialog(String docID, String arrivalTime, String departureTime,String name) {
+  void openActionDialog(String docID, String arrivalTime, String departureTime, String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -46,9 +45,14 @@ class _ListPage extends State<ListPage> {
             if (arrivalTime.isNotEmpty)
               ElevatedButton(
                 onPressed: () async {
-                  String logID = await firestoreService.addLogArrival(arrivalTime,name);
-                  firestoreService.removeArrival(docID);
-                  Navigator.pop(context);
+                  try {
+                    logID = await firestoreService.addLogArrival(arrivalTime, name);
+                    await firestoreService.removeArrival(docID);
+                  } catch (e) {
+                    print('Error: $e');
+                  } finally {
+                    Navigator.pop(context);
+                  }
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff114232),
@@ -68,10 +72,15 @@ class _ListPage extends State<ListPage> {
               ),
             if (arrivalTime.isNotEmpty) const SizedBox(height: 8),
             ElevatedButton(
-              onPressed: () {
-                firestoreService.addLogDeparture( logID, departureTime);
-                firestoreService.cancelReservation(docID);
-                Navigator.pop(context);
+              onPressed: () async {
+                try {
+                  await firestoreService.addLogDeparture(logID, departureTime);
+                  await firestoreService.cancelReservation(docID);
+                } catch (e) {
+                  print('Error: $e');
+                } finally {
+                  Navigator.pop(context);
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xff114232),
@@ -90,6 +99,91 @@ class _ListPage extends State<ListPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  void openLogsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Container(
+          width: MediaQuery.of(context).size.width * 0.8,
+          height: MediaQuery.of(context).size.height * 0.6,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const Text(
+                'All Logs',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Expanded(
+                child: StreamBuilder<QuerySnapshot>(
+                  stream: firestoreService.getAllLogs(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+                      List<DocumentSnapshot> logsList = snapshot.data!.docs;
+
+                      return ListView.builder(
+                        itemCount: logsList.length,
+                        itemBuilder: (context, index) {
+                          DocumentSnapshot document = logsList[index];
+                          Map<String, dynamic> data = document.data() as Map<String, dynamic>;
+                          String name = data['name'] ?? 'No name';
+                          String arrivalTime = data['arrival'] ?? '';
+                          String departureTime = data['departure'] ?? '';
+
+                          return ListTile(
+                            title: Text(name),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Arrival: $arrivalTime'),
+                                Text('Departure: $departureTime'),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      return const Center(
+                        child: Text("No logs available."),
+                      );
+                    }
+                  },
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await firestoreService.clearAllLogs();
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xff114232),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                child: const Text(
+                  'Clear All Logs',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'ReadexPro',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -122,28 +216,80 @@ class _ListPage extends State<ListPage> {
               ),
             ),
           ),
+          StreamBuilder<int>(
+            stream: firestoreService.getSlots(),
+            builder: (BuildContext context,AsyncSnapshot<int> snapshot) {
+              if(snapshot.connectionState == ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+              else if(snapshot.hasError){
+                return Text(
+                  'Error: ${snapshot.error}',
+                  style: const TextStyle(
+                    color: Colors.red,
+                    fontSize: 40,
+                    fontFamily: 'ReadexPro',
+                    fontWeight: FontWeight.w400,
+                  ),
+                );
+              }
+              else if (snapshot.hasData){
+                return Text(
+                  '${snapshot.data}',
+                  style: const TextStyle(
+                    color: Colors.black,
+                    fontSize: 40,
+                    fontFamily: 'ReadexPro',
+                    fontWeight: FontWeight.w400,
+                  ),
+                );
+              }
+              else {
+                return const Text(
+                  '0',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 40,
+                    fontFamily: 'ReadexPro',
+                    fontWeight: FontWeight.w400,
+                  )
+                );
+              }
+            },
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                'Available vacancies',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+             ),
+          const SizedBox(height: 10,),
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: firestoreService.getUserStream(),
               builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
                 if (snapshot.hasData) {
                   List<DocumentSnapshot> userList = snapshot.data!.docs;
 
                   return ListView.builder(
                     itemCount: userList.length,
                     itemBuilder: (context, index) {
-                      // Get each individual doc
                       DocumentSnapshot document = userList[index];
                       String docID = document.id;
-                      // Get note from each doc
                       Map<String, dynamic> data = document.data() as Map<String, dynamic>;
                       String name = data['name'] ?? 'No name';
                       String arrivalTime = data['arrival'] ?? '';
                       String departureTime = data['departure'] ?? '';
 
-                      // Display as a list tile
                       return InkWell(
-                        onTap: () => openActionDialog(docID, arrivalTime,departureTime,name),
+                        onTap: () => openActionDialog(docID, arrivalTime, departureTime, name),
                         child: Column(
                           children: [
                             Padding(
@@ -244,6 +390,19 @@ class _ListPage extends State<ListPage> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: Align(
+        alignment: Alignment.bottomLeft,
+        child: Padding(
+          padding: const EdgeInsets.only(left: 50.0, bottom:16.0),
+          child: FloatingActionButton(
+            onPressed: openLogsDialog,
+            backgroundColor: const Color(0xff114232),
+            child: const Icon(
+              Icons.history,
+              color: Colors.white,),
+          ),
+        ),
       ),
     );
   }
