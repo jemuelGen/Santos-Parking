@@ -9,6 +9,7 @@ import 'package:intl/intl.dart';
 class FirestoreServices {
   final CollectionReference slots = FirebaseFirestore.instance.collection('parkingLot');
   final CollectionReference userDetails = FirebaseFirestore.instance.collection('User');
+  final CollectionReference logs = FirebaseFirestore.instance.collection('logs');
   
   Stream<bool> departureTimeStream(String uid){
     return userDetails.doc(uid).snapshots().map((snapshot){
@@ -171,7 +172,7 @@ class FirestoreServices {
 
     if (userDoc.exists && userDoc.data() != null) {
       await userDocRef.update({
-        'arrival':'Arrived',
+        'arrival':'',
       });
       return 'Reservation cancelled successfully';
     }
@@ -197,8 +198,8 @@ class FirestoreServices {
     if (userDoc.exists && userDoc.data() != null) {
       // Update the user document to remove reservation details or mark as not reserved
       await userDocRef.update({
-        'arrival': FieldValue.delete(),
-        'departure': FieldValue.delete(),
+        'arrival': '',
+        'departure': '',
         'reserve': false,
       });
        DocumentSnapshot parkingLotDoc = querySnapshot.docs.first;
@@ -264,10 +265,28 @@ class FirestoreServices {
 
     await userDocRef.update(updateData);
 
-    return 'Arrival and Departure time successfully updated';
+    return 'Time Successfully updated';
   } catch (e) {
     return "Error reserving: ${e.toString()}";
-  }
+  } 
 }
+  //add log
+  Future<void> addLogDeparture(String docID,String departure) {
+    return logs.doc(docID).update({
+      'departure': departure,
+    });
+  }
 
+  Future<String> addLogArrival(String arrival,String name) async {
+    DocumentReference docRef = logs.doc();
+    
+    await docRef.set({
+      'arrival': arrival,
+      'name': name,
+      'timestamp': Timestamp.now()
+    });
+
+    return docRef.id;
+  }
+  
 }

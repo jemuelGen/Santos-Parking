@@ -209,7 +209,7 @@ class _InfoPageState extends State<InfoPage> {
                                             ),
                                             const SizedBox(height: 5),
                                             
-                                            if (arrival == 'Arrived')
+                                            if (arrival == '')
                                               const Center(
                                                 child: Text(
                                                   'Arrived',

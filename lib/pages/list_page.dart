@@ -24,15 +24,10 @@ class _ListPage extends State<ListPage> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              if (docID == null) {
-                //firestoreService.addNote(textController.text);
-              } else {
-                //firestoreService.updateNote(docID, textController.text);
-              }
 
               textController.clear();
-
               Navigator.pop(context);
+
             },
             child: const Text("Add"),
           )
@@ -41,7 +36,7 @@ class _ListPage extends State<ListPage> {
     );
   }
 
-  void openActionDialog(String docID, String arrivalTime) {
+  void openActionDialog(String docID, String arrivalTime, String departureTime,String name) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -50,7 +45,8 @@ class _ListPage extends State<ListPage> {
           children: [
             if (arrivalTime.isNotEmpty)
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
+                  String logID = await firestoreService.addLogArrival(arrivalTime,name);
                   firestoreService.removeArrival(docID);
                   Navigator.pop(context);
                 },
@@ -73,6 +69,7 @@ class _ListPage extends State<ListPage> {
             if (arrivalTime.isNotEmpty) const SizedBox(height: 8),
             ElevatedButton(
               onPressed: () {
+                firestoreService.addLogDeparture( logID, departureTime);
                 firestoreService.cancelReservation(docID);
                 Navigator.pop(context);
               },
@@ -146,7 +143,7 @@ class _ListPage extends State<ListPage> {
 
                       // Display as a list tile
                       return InkWell(
-                        onTap: () => openActionDialog(docID, arrivalTime),
+                        onTap: () => openActionDialog(docID, arrivalTime,departureTime,name),
                         child: Column(
                           children: [
                             Padding(
